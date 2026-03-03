@@ -2272,7 +2272,11 @@
                 const p = (path || '').toLowerCase();
                 const idx = statePriority.findIndex(x => p.endsWith(x));
                 if (idx >= 0) return idx; // 0~3: 四个主状态最前
-                if (p.includes('guest_anim_')) return 999; // guest 动画放最后
+
+                // 按钮素材最不重要：统一沉到列表末尾
+                if (p.includes('/btn-') || p.includes('btn-') || p.includes('button')) return 1000;
+
+                if (p.includes('guest_anim_')) return 999; // guest 动画靠后
                 return 100;
             };
             const rows = baseRows
