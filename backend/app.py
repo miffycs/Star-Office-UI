@@ -191,6 +191,9 @@ if not os.path.exists(STATE_FILE):
     save_state(DEFAULT_STATE)
 
 
+_INDEX_HTML_CACHE = None
+
+
 @app.route("/", methods=["GET"])
 def index():
     """Serve the pixel office UI with built-in version cache busting"""
@@ -198,10 +201,13 @@ def index():
     # 如需启用，可配置 AUTO_ROTATE_HOME_ON_PAGE_OPEN=1
     _maybe_apply_random_home_favorite()
 
-    with open(os.path.join(FRONTEND_DIR, "index.html"), "r", encoding="utf-8") as f:
-        html = f.read()
-    html = html.replace("{{VERSION_TIMESTAMP}}", VERSION_TIMESTAMP)
-    resp = make_response(html)
+    global _INDEX_HTML_CACHE
+    if _INDEX_HTML_CACHE is None:
+        with open(os.path.join(FRONTEND_DIR, "index.html"), "r", encoding="utf-8") as f:
+            raw_html = f.read()
+        _INDEX_HTML_CACHE = raw_html.replace("{{VERSION_TIMESTAMP}}", VERSION_TIMESTAMP)
+
+    resp = make_response(_INDEX_HTML_CACHE)
     resp.headers["Content-Type"] = "text/html; charset=utf-8"
     return resp
 
