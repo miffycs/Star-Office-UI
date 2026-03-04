@@ -671,11 +671,10 @@ def _generate_rpg_background_to_webp(out_webp_path: str, width: int = 1280, heig
         raise RuntimeError(f"生图失败: {err_text}")
 
     if proc is None or proc.returncode != 0:
-        if model_unavailable_count >= len(model_candidates):
-            raise RuntimeError("MODEL_NOT_AVAILABLE")
         err_text = (last_err_text or "").strip()
-        if _is_model_unavailable_error(err_text):
-            raise RuntimeError("MODEL_NOT_AVAILABLE")
+        if model_unavailable_count >= len(model_candidates) or _is_model_unavailable_error(err_text):
+            brief = (err_text or "").replace("\n", " ")[:240]
+            raise RuntimeError(f"MODEL_NOT_AVAILABLE::{brief}")
         raise RuntimeError(f"生图失败: {err_text}")
 
     try:
@@ -1282,8 +1281,16 @@ def assets_generate_rpg_background():
             return jsonify({"ok": False, "code": "MISSING_API_KEY", "msg": "Missing GEMINI_API_KEY or GOOGLE_API_KEY"}), 400
         if msg == "API_KEY_REVOKED_OR_LEAKED":
             return jsonify({"ok": False, "code": "API_KEY_REVOKED_OR_LEAKED", "msg": "API key is revoked or flagged as leaked. Please rotate to a new key."}), 400
-        if msg == "MODEL_NOT_AVAILABLE":
-            return jsonify({"ok": False, "code": "MODEL_NOT_AVAILABLE", "msg": "Configured model is not available for this API key/channel."}), 400
+        if msg.startswith("MODEL_NOT_AVAILABLE"):
+            detail = ""
+            if "::" in msg:
+                detail = msg.split("::", 1)[1]
+            return jsonify({
+                "ok": False,
+                "code": "MODEL_NOT_AVAILABLE",
+                "msg": "Configured model is not available for this API key/channel.",
+                "detail": detail,
+            }), 400
         return jsonify({"ok": False, "msg": msg}), 500
 
 

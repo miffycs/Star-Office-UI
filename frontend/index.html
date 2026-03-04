@@ -2871,7 +2871,7 @@ function toggleBrokerPanel() {
                         const box = document.getElementById('asset-gemini-config');
                         if (box) box.style.display = 'block';
                     } else if (data.code === 'MODEL_NOT_AVAILABLE') {
-                        out.textContent = '❌ 当前模型在此通道不可用，请切换可用模型后重试';
+                        out.textContent = '❌ 当前模型在此通道不可用，请切换可用模型后重试' + (data.detail ? ('\n\n详情：' + data.detail) : '');
                     } else {
                         out.textContent = `❌ 生成失败：${data.msg || res.status}`;
                     }
@@ -2916,7 +2916,7 @@ function toggleBrokerPanel() {
                         const box = document.getElementById('asset-gemini-config');
                         if (box) box.style.display = 'block';
                     } else if (data.code === 'MODEL_NOT_AVAILABLE') {
-                        out.textContent = '❌ 当前模型在此通道不可用，请切换可用模型后重试';
+                        out.textContent = '❌ 当前模型在此通道不可用，请切换可用模型后重试' + (data.detail ? ('\n\n详情：' + data.detail) : '');
                     } else {
                         out.textContent = `❌ 生成失败：${data.msg || res.status}`;
                     }
